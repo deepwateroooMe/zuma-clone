@@ -24,7 +24,7 @@ public class SectionData {
     public void OnAddModifySections(int atIndex) {
         Debug.Log(TAG + " OnAddModifySections()");
         List<KeyValuePair<int, int>> modSectionList = new List<KeyValuePair<int, int>>();
-        int sectionKey = GetSectionKey(atIndex);
+        int sectionKey = GetSectionKey(atIndex); 
         int sectionKeyVal;
         ballSections.TryGetValue(sectionKey, out sectionKeyVal);
         if (sectionKey != int.MaxValue) { // 最开始拿的，都是最大值 Integer.MAX_VALUE, 什么时候才会变呢？

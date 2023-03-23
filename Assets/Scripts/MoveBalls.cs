@@ -37,7 +37,6 @@ public class MoveBalls : MonoBehaviour {
     private int addBallIndex;
     private int touchedBallIndex;
     private float ballRadius;
-
     private void Start () {
         ballRadius = redBall.transform.localScale.x;// 讨厌这种用法：设计狠不科学
         headballIndex = 0;
@@ -52,7 +51,6 @@ public class MoveBalls : MonoBehaviour {
             CreateNewBall();
         sectionData = new SectionData();
     }
-
     private void Update () {
         if (sectionData.ballSections.Count > 1 && addBallIndex != -1 && addBallIndex < headballIndex)
             MoveStopeedBallsAlongPath();
@@ -66,7 +64,6 @@ public class MoveBalls : MonoBehaviour {
             MergeActiveEnds();
         MergeIfStoppedEndsMatch();
     }
-
     public void AddNewBallAt(GameObject go, int index, int touchedBallIdx) {
         addBallIndex = index;
         touchedBallIndex = touchedBallIdx;
@@ -82,12 +79,10 @@ public class MoveBalls : MonoBehaviour {
         // adjust distance for headBall or the position of the front in the added section
         PushSectionForwardByUnit(); // 这里就是，碰撞里产生的力的效果，添加一点儿游戏乐趣体验
     }
-
     public static BallColor GetRandomBallColor() {
         int rInt = Random.Range(0, 4); // 这个生成少了，黄色的就出不来
         return (BallColor)rInt;
     }
-
     private void CreateNewBall() {
         switch (GetRandomBallColor()) {
         case BallColor.red:
