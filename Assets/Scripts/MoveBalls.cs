@@ -4,8 +4,7 @@ using UnityEngine;
 using BansheeGz.BGSpline.Components;
 using BansheeGz.BGSpline.Curve;
 using DG.Tweening;
-
-// 现在游戏中：这个太短了，需要有一个硬性个数设定，对不同关卡可以设置不同
+// 现在游戏中：这个太短了，原本只有8 个小球，现设置为 227 粒小球，需要有一个硬性个数设定，对不同关卡可以设置不同
 public struct ActiveBallList {
     List<GameObject> ballList;
     bool isMoving;
@@ -22,22 +21,18 @@ public class MoveBalls : MonoBehaviour {
     public GameObject greenBall;
     public GameObject blueBall;
     public GameObject yellowBall;
-
-    public float pathSpeed;
+    public float pathSpeed; // 我设置成了 5
     public float mergeSpeed;
     public int ballCount;
-    public Ease easeType;
-    public Ease mergeEaseType;
-
+    public Ease easeType;      // 线性 Linear
+    public Ease mergeEaseType; // 线性 Linear
     private List<GameObject> ballList;
     private GameObject ballsContainerGO;      // 它有个：活的小珠，存储器
     private GameObject removedBallsContainer; // 也有个：死的回收了的，存储器，但功能不全，没回收全？还是已经被再利用了？
-
     private BGCurve bgCurve;
     private float distance = 0;
     private int headballIndex;
     private SectionData sectionData;
-
     [SerializeField]
     private int addBallIndex;
     private int touchedBallIndex;
@@ -61,7 +56,7 @@ public class MoveBalls : MonoBehaviour {
     private void Update () {
         if (sectionData.ballSections.Count > 1 && addBallIndex != -1 && addBallIndex < headballIndex)
             MoveStopeedBallsAlongPath();
-        if (ballList.Count > 0)
+        if (ballList.Count > 0) // 最开始：只有一个片段
             MoveAllBallsAlongPath();
         if (headballIndex != 0)
             JoinStoppedSections(headballIndex, headballIndex - 1);
@@ -76,20 +71,20 @@ public class MoveBalls : MonoBehaviour {
         addBallIndex = index;
         touchedBallIndex = touchedBallIdx;
         if (index > ballList.Count)
-            ballList.Add(go);
+            ballList.Add(go); // 直接加到链表的尾巴上去
         else
-            ballList.Insert(index, go);
-        go.transform.parent = ballsContainerGO.transform;
+            ballList.Insert(index, go); // 插入到相应的位置 
+        go.transform.parent = ballsContainerGO.transform; // 设置父控件
         go.transform.SetSiblingIndex(index);
-        if(touchedBallIdx < headballIndex)
+        if (touchedBallIdx < headballIndex) // 这里没看懂
             headballIndex++;
-        sectionData.OnAddModifySections(touchedBallIdx);
+        sectionData.OnAddModifySections(touchedBallIdx); // 被碰撞到的小球的下标
         // adjust distance for headBall or the position of the front in the added section
-        PushSectionForwardByUnit();
+        PushSectionForwardByUnit(); // 这里就是，碰撞里产生的力的效果，添加一点儿游戏乐趣体验
     }
 
     public static BallColor GetRandomBallColor() {
-        int rInt = Random.Range(0, 3);
+        int rInt = Random.Range(0, 4); // 这个生成少了，黄色的就出不来
         return (BallColor)rInt;
     }
 
@@ -172,8 +167,9 @@ public class MoveBalls : MonoBehaviour {
         }
         return false;
     }
-    // Move the section head a unit forward along the path when new ball is added
-    private void PushSectionForwardByUnit() {
+// Move the section head a unit forward along the path when new ball is added
+// 这里应该有可能的三种状态：静止不动，向前，向后，因为碰撞飞来的发射来的小球的力的作用方向是可能导致三种不同结果的
+    private void PushSectionForwardByUnit() { 
         int sectionKey = sectionData.GetSectionKey(addBallIndex);
         int sectionKeyVal = sectionData.ballSections[sectionKey];
         float modifiedDistance;
@@ -182,9 +178,11 @@ public class MoveBalls : MonoBehaviour {
         modifiedDistance += ballRadius;
         if (addBallIndex >= headballIndex)
             distance = modifiedDistance;
+        // 下面：小球的目标位置：
         Vector3 movedPos = GetComponent<BGCcMath>().CalcPositionAndTangentByDistance(modifiedDistance, out tangent);
-        ballList[sectionKeyVal].transform.DOMove(movedPos, 1);
-        ballList[sectionKeyVal].transform.rotation = Quaternion.LookRotation(tangent);
+        ballList[sectionKeyVal].transform.DOMove(movedPos, 1); // 这里说，同类型区段的头，1 秒内，移动到目标位置
+        // TODO: 这里理解的逻辑还没能跟上：当同类型区片的头1 秒内移动到目标位置，每桢同步的时候，区段里其它小球是如何跟上的？
+        ballList[sectionKeyVal].transform.rotation = Quaternion.LookRotation(tangent); // 同时，游戏效果，给它一定的计算出来的旋转度，看起来会比较好玩儿一点儿
     }
     // Join the sections which were divided when balls were removed
     // Just check the current head with the next value if they are close
