@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SectionData {
     // 没搞明白：这个字典是在纪录什么？分片的球，同色的起始下标？
-    public SortedDictionary<int, int> ballSections;
+    public SortedDictionary<int, int> ballSections; // 它的键值对：像是同样花色的片段，首尾的下标？
 
     public SectionData() {
         ballSections = new SortedDictionary<int, int>(); // 有序，升序字典
@@ -12,12 +12,13 @@ public class SectionData {
     }
     public int GetSectionKey(int front) {
         int key = int.MaxValue;
-        foreach(KeyValuePair<int, int> entry in ballSections) {
+        foreach (KeyValuePair<int, int> entry in ballSections) {
             if (front >= entry.Value && front <= entry.Key)
                 key =  entry.Key;
         }
         return key;
     }
+
     public void OnAddModifySections(int atIndex) {
         List<KeyValuePair<int, int>> modSectionList = new List<KeyValuePair<int, int>>();
         int sectionKey = GetSectionKey(atIndex);
@@ -27,6 +28,7 @@ public class SectionData {
             int newSectionKey = sectionKey + 1;
             ballSections.Add(newSectionKey, sectionKeyVal);
             ballSections.Remove(sectionKey);
+            // 不懂它的设计原理：还是没有读懂，它下面的两个部分是在做什么，当一个小球插入移动链表，它需要更新些什么？
             // Get the keys which are to be updated
             // Since changing the value in the loop itself will add new entries which are always greater than the current one
             // There by looping it infinitely and incorrect
@@ -49,6 +51,7 @@ public class SectionData {
             }
         }
     }
+
     public void DeleteEntireSection(int atIndex, int range, int sectionKey, int ballListCount) {
         List<KeyValuePair<int, int>> modSectionList = new List<KeyValuePair<int, int>>();
         // If section is last but one i.e before the moving section

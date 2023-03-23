@@ -4,6 +4,8 @@ using UnityEngine;
 using BansheeGz.BGSpline.Components;
 using BansheeGz.BGSpline.Curve;
 using DG.Tweening;
+
+// 这个类：就是一个测试用例
 public class Test : MonoBehaviour {
 
     public Transform ObjectToMove;

@@ -52,19 +52,19 @@ public class RotateLauncher : MonoBehaviour {
     }
     private void SetBallColor(GameObject go) {
         BallColor randColor = MoveBalls.GetRandomBallColor();
-        switch (randColor) {
-        case BallColor.red:
-            go.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-            break;
-        case BallColor.green:
-            go.GetComponent<Renderer>().material.SetColor("_Color", Color.green);
-            break;
-        case BallColor.blue:
-            go.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
-            break;
-        case BallColor.yellow:
-            go.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
-            break;
+        switch (randColor) { // 这里的颜色设置有一点儿问题：看起来不一致，Unity 里的颜色跟自己设置的不一样？
+            case BallColor.red:
+                go.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                break;
+            case BallColor.green:
+                go.GetComponent<Renderer>().material.SetColor("_Color", Color.green);
+                break;
+            case BallColor.blue:
+                go.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
+                break;
+            case BallColor.yellow:
+                go.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
+                break;
         }
     }
 }

@@ -11,14 +11,12 @@ public struct ActiveBallList {
     bool isMoving;
     bool isInTransition;
 }
-
 public enum BallColor { // 太少，共8 种 
     red,
     green,
     blue,
     yellow
 }
-
 public class MoveBalls : MonoBehaviour {
     public GameObject redBall; // 这种设计不科学
     public GameObject greenBall;
@@ -32,19 +30,21 @@ public class MoveBalls : MonoBehaviour {
     public Ease mergeEaseType;
 
     private List<GameObject> ballList;
-    private GameObject ballsContainerGO;
-    private GameObject removedBallsContainer;
+    private GameObject ballsContainerGO;      // 它有个：活的小珠，存储器
+    private GameObject removedBallsContainer; // 也有个：死的回收了的，存储器，但功能不全，没回收全？还是已经被再利用了？
+
     private BGCurve bgCurve;
-    private float distance= 0;
+    private float distance = 0;
     private int headballIndex;
     private SectionData sectionData;
+
     [SerializeField]
     private int addBallIndex;
     private int touchedBallIndex;
     private float ballRadius;
 
     private void Start () {
-        ballRadius = redBall.transform.localScale.x;
+        ballRadius = redBall.transform.localScale.x;// 讨厌这种用法：设计狠不科学
         headballIndex = 0;
         addBallIndex = -1;
         bgCurve = GetComponent<BGCurve>();
