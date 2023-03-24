@@ -10,17 +10,25 @@ public struct ActiveBallList {
     bool isMoving;
     bool isInTransition;
 }
-public enum BallColor { // 太少，共8 种 
+public enum BallColor { // 太少，共8 种：这里强行添加多样性，8 种全加上
     red,
     green,
     blue,
-    yellow
+    yellow,
+    bonus,
+    stone,
+    purple,
+    white
 }
 public class MoveBalls : MonoBehaviour {
     public GameObject redBall; // 这种设计不科学
     public GameObject greenBall;
     public GameObject blueBall;
     public GameObject yellowBall;
+    public GameObject whiteBall;
+    public GameObject bonusBall;
+    public GameObject stoneBall;
+    public GameObject purpleBall;
     public float pathSpeed; // 我设置成了 5
     public float mergeSpeed;
     public int ballCount;
@@ -80,7 +88,7 @@ public class MoveBalls : MonoBehaviour {
         PushSectionForwardByUnit(); // 这里就是，碰撞里产生的力的效果，添加一点儿游戏乐趣体验
     }
     public static BallColor GetRandomBallColor() {
-        int rInt = Random.Range(0, 4); // 这个生成少了，黄色的就出不来
+        int rInt = Random.Range(0, 8); // 这个生成少了，黄色的就出不来
         return (BallColor)rInt;
     }
     private void CreateNewBall() {
@@ -96,6 +104,18 @@ public class MoveBalls : MonoBehaviour {
             break;
         case BallColor.yellow:
             InstatiateBall(yellowBall);
+            break;
+        case BallColor.bonus:
+            InstatiateBall(bonusBall);
+            break;
+        case BallColor.stone:
+            InstatiateBall(stoneBall);
+            break;
+        case BallColor.purple:
+            InstatiateBall(purpleBall);
+            break;
+        case BallColor.white:
+            InstatiateBall(whiteBall);
             break;
         }
     }

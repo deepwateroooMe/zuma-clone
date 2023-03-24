@@ -10,7 +10,11 @@ public class RotateLauncher : MonoBehaviour {
     public Material blue;
     public Material green;
     public Material yellow;
-    public GameObject instanceBall;
+    public Material stone;
+    public Material white;
+    public Material purple;
+    public Material bonus;
+    public static GameObject instanceBall; // 这个特殊的发射球：全局只有一个，任何时候都应该只有一个
     public float ballSpeed = 10;
     private Vector3 lookPos;
 
@@ -34,12 +38,17 @@ public class RotateLauncher : MonoBehaviour {
         lookDir.y = 0;
         transform.LookAt (transform.position + lookDir, Vector3.up); // 把金龙的头转向这个方向 
     }
-    private void SetBallPostion() {
+    private void SetBallPostion() { // 这里更改的是：发射出去，在路上的小球的每桢的位置变化
         instanceBall.transform.forward = transform.forward;
         instanceBall.transform.position = transform.position + transform.forward * transform.localScale.z;
     }
+    // TODO: 这里有几个 bug: FixedUpdate() 的时间与鼠标左键点下，是两个独立的事件，并不是在 FixedUpdate() 的这个时间点，正好发生鼠标左键点击。所以合理的做法应该是，每当鼠标点击，就将球发送出去？
     private void ShootBall() {
-        if (Input.GetKeyDown(KeyCode.Mouse0)) { // 判断条件：并非每桢都自动生成，还是鼠标左键点击后金龙才会发射小球
+        // bool doneInThisFixedUpdate = false; // 目的是：想要一桢只最多发射一粒小球，为的是防卡死。现在是有太多每桢两三个小球会卡死的情况
+        // if (Input.GetKeyDown(KeyCode.Mouse0) && !doneInThisFixedUpdate) { // 判断条件：并非每桢都自动生成，还是鼠标左键点击后金龙才会发射小球 [GetKeyDown：按下某个按键，按住只会在第一帧返回]
+        if (Input.GetKeyDown(KeyCode.Mouse0)) { // 判断条件：并非每桢都自动生成，还是鼠标左键点击后金龙才会发射小球 [GetKeyDown：按下某个按键，按住只会在第一帧返回]
+            // doneInThisFixedUpdate = true;
+        // if (Input.GetMouseButtonDown(0)) { // 判断条件：并非每桢都自动生成，还是鼠标左键点击后金龙才会发射小球 [GetKeyDown：按下某个按键，按住只会在第一帧返回]
 // 这里给发射出去的小球一个力度：因为力的作用，可以把小球链表往回打【会有可能三个效果：静止不支，向前或是向后！！】
 // 效果上，如果能够把小球链表打得灰飞烟灭般动态多样，还是比较好玩的，【重温童年经典】
             instanceBall.GetComponent<Rigidbody>().AddForce(instanceBall.transform.forward * ballSpeed); 
@@ -67,6 +76,18 @@ public class RotateLauncher : MonoBehaviour {
                 break;
             case BallColor.yellow:
                 go.GetComponent<Renderer>().material = yellow;
+                break;
+            case BallColor.purple:
+                go.GetComponent<Renderer>().material = purple;
+                break;
+            case BallColor.stone:
+                go.GetComponent<Renderer>().material = stone;
+                break;
+            case BallColor.bonus:
+                go.GetComponent<Renderer>().material = bonus;
+                break;
+            case BallColor.white:
+                go.GetComponent<Renderer>().material = white;
                 break;
         } 
     }
