@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 // 这个类功能：负责管理，调控鑫龙头的转向，与发射小球，生成新的小球
 public class RotateLauncher : MonoBehaviour {
@@ -17,7 +18,7 @@ public class RotateLauncher : MonoBehaviour {
     public static GameObject instanceBall; // 这个特殊的发射球：全局只有一个，任何时候都应该只有一个
     public float ballSpeed = 10;
     private Vector3 lookPos;
-
+    private Vector3 relative = new Vector3(2, 0, 2);
     private void Start() {
         CreateBall();
     }
@@ -36,7 +37,13 @@ public class RotateLauncher : MonoBehaviour {
             lookPos = hit.point;
         Vector3 lookDir = lookPos - transform.position;
         lookDir.y = 0;
-        transform.LookAt (transform.position + lookDir, Vector3.up); // 把金龙的头转向这个方向 
+        transform.LookAt(transform.position + lookDir, Vector3.up); // 把金龙的头转向这个方向, 这个不好用，方向看反了。。。
+        // // 1.得到当前位置和目标位置的方向
+        // Vector3 dir = (new Vector3(lookPos.x, 0, lookPos.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized;
+        // // 2.的到的方向通过LookRotation函数获得这个方向的四元数
+        // Quaternion rot = Quaternion.LookRotation(dir);
+        // // 3.使用插件DOTween中DORotate的旋转得到角度
+        // transform.DORotate(new Vector3(rot.eulerAngles.x, rot.eulerAngles.y, rot.eulerAngles.z), 0.05f, RotateMode.Fast);
     }
     private void SetBallPostion() { // 这里更改的是：发射出去，在路上的小球的每桢的位置变化
         instanceBall.transform.forward = transform.forward;
@@ -52,7 +59,7 @@ public class RotateLauncher : MonoBehaviour {
             CreateBall(); // 发射出去一粒，这里就再生成一粒
         }
     }
-    private void CreateBall() {
+    private void CreateBall() { // TODO: 这里因为球的位置不对，需要给它一个相对偏移
         instanceBall = Instantiate(dummyBall, transform.position, Quaternion.identity);
         instanceBall.SetActive(true);
         instanceBall.tag = "NewBall";
