@@ -10,7 +10,7 @@ public class SectionData {
 
     public SectionData() {
         ballSections = new SortedDictionary<int, int>(); // 有序，升序字典
-        ballSections.Add(int.MaxValue, 0); // [Integer.MAX_VALUE, 0] 这里头比尾大
+        ballSections.Add(int.MaxValue, 0); // [Integer.MAX_VALUE, 0] 【尾，头】 这里尾比头大
     }
     public int GetSectionKey(int front) {
         int key = int.MaxValue;
@@ -21,8 +21,7 @@ public class SectionData {
         return key;
     }
 
-    public void OnAddModifySections(int atIndex) {
-        Debug.Log(TAG + " OnAddModifySections()");
+    public void OnAddModifySections(int atIndex) { // atIndex: 被碰撞小球的下标，可添加在其前，或是其后
         List<KeyValuePair<int, int>> modSectionList = new List<KeyValuePair<int, int>>();
         int sectionKey = GetSectionKey(atIndex); 
         int sectionKeyVal;
@@ -72,7 +71,7 @@ public class SectionData {
                 if (entry.Key > sectionKey)
                     modSectionList.Add(entry);
             }
-            ballSections.Add(modSectionList[0].Key - range, atIndex);
+            ballSections.Add(modSectionList[0].Key - range, atIndex); // 这里看昏了；没看懂
             ballSections.Remove(modSectionList[0].Key);
             modSectionList.RemoveAt(0);
             foreach(KeyValuePair<int, int> entry in modSectionList) {
@@ -83,7 +82,7 @@ public class SectionData {
                     ballSections[entry.Key] = entry.Value - range;
             }
         }
-        else {
+        else { // 把键为 sectionKey 的这个键值对去掉，保留最后一个大片段
             KeyValuePair<int, int> getLastButOne = new KeyValuePair<int, int>();
             if (ballSections.Count > 1) {
                 foreach (KeyValuePair<int, int> entry in ballSections) {
@@ -101,12 +100,12 @@ public class SectionData {
         // when delection takes place at the front or back of the section
         int end = sectionKey == int.MaxValue? ballListCount + range - 1: sectionKey;
         if (atIndex == sectionKeyVal || atIndex + range - 1 == end) {
-            Debug.Log("Partial: Front/back");
+            Debug.Log("Partial: Front/back 是原？片段的头，或是尾巴部分");
             if (sectionKey == int.MaxValue)
                 return;
-            int newSectionKey = sectionKey - range;
-            ballSections.Add(newSectionKey, sectionKeyVal);
-            ballSections.Remove(sectionKey);
+            int newSectionKey = sectionKey - range; // 缩小尾巴下标
+            ballSections.Add(newSectionKey, sectionKeyVal); // 更新成新片段
+            ballSections.Remove(sectionKey); // 去除原大片段
             foreach (KeyValuePair<int, int> entry in ballSections) {
                 if (entry.Key > newSectionKey)
                     modSectionList.Add(entry);
@@ -114,29 +113,28 @@ public class SectionData {
         }
         // when delection takes place in middle of the section which creates a new section
         else {
-            Debug.Log("Partial: Middle");
-            // new section front
+            Debug.Log("Partial: Middle 是原 ? 片段的中间某部分");
+            // new section front: 如果要去掉一个中间片段，就会产生一个原中间片段之前的前片段，和一个后片段
             int newSectionKey = atIndex - 1;
-            ballSections.Add(newSectionKey, sectionKeyVal);
+            ballSections.Add(newSectionKey, sectionKeyVal); // 添加一个新的：原中间片段之前的，前片段 
             if (sectionKey != int.MaxValue) {
-                int nextSectionKey = sectionKey - range;
-                ballSections.Remove(sectionKey);
+                int nextSectionKey = sectionKey - range; // 因为当前大片段，只会消除 Range 个小球，所以它的尾巴下标会变短这么多
+                ballSections.Remove(sectionKey);  // 去掉，原大片段 
                 // new section back
-                ballSections.Add( nextSectionKey, atIndex);
+                ballSections.Add(nextSectionKey, atIndex);  // 添加一个新的：原中间片段之后的，后片段
                 foreach (KeyValuePair<int, int> entry in ballSections) {
                     if (entry.Key > nextSectionKey)
                         modSectionList.Add(entry);
                 }
-            }
-            else {
+            } else { // 最后一个大片段的话，就重新更新一下头就可以了
                 ballSections[int.MaxValue] = atIndex;
                 return;
             }
         }
         // Sort keys just to avoid bug due if a lower key is modified before higher key
-        modSectionList.Sort((entryA, entryB) => entryA.Key.CompareTo(entryB.Key));
+        modSectionList.Sort((entryA, entryB) => entryA.Key.CompareTo(entryB.Key)); // 这里都是计算了的，需要更新的缓存，还仍需要进一步地修改
         // Get the keys to be changed and modify them
-        foreach(KeyValuePair<int, int> entry in modSectionList) {
+        foreach(KeyValuePair<int, int> entry in modSectionList) { // 对受到影响，还没更改到位的缓存，再作进一步的修改，同步到位
             if (entry.Key != int.MaxValue) {
                 if (entry.Value == 0)
                     ballSections.Add(entry.Key - range, entry.Value);
