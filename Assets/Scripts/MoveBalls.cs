@@ -209,7 +209,7 @@ public class MoveBalls : MonoBehaviour {
         }
         Vector2 currentPos = new Vector2(ballList[addBallIndex].transform.position.x, ballList[addBallIndex].transform.position.y);
         float isNear = Vector2.Distance(actualPos, currentPos);
-// TODO: 这个限制条件是让我想不明白的：因为游戏过程中存在，同类型好几个消除不了的情况
+// TODO: 这个限制条件是让我想不明白的：因为游戏过程中存在，同类型好几个消除不了的情况? 后来好像看见得少了，可是仍然需要再检测一下
         if (isNear <= 0.1f) {  // 想把这个限制条件去掉
             RemoveMatchedBalls(addBallIndex, ballList[addBallIndex]);
             addBallIndex = -1;
@@ -360,3 +360,4 @@ public class MoveBalls : MonoBehaviour {
         }
     }
 }
+

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ActiveBalls
   - NewBall
+  - ballPos
   layers:
   - Default
   - TransparentFX

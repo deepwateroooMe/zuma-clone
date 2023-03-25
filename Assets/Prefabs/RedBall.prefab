@@ -13,13 +13,14 @@ GameObject:
   - component: {fileID: 23627581797080030}
   - component: {fileID: 135236442615210042}
   - component: {fileID: 54798044028957334}
-  m_Layer: 9
+  - component: {fileID: 1928013407}
+  m_Layer: 0
   m_Name: RedBall
-  m_TagString: ActiveBalls
+  m_TagString: NewBall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4537820959328192
 Transform:
   m_ObjectHideFlags: 0
@@ -106,5 +107,17 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 126
-  m_CollisionDetection: 0
+  m_Constraints: 112
+  m_CollisionDetection: 2
+--- !u!114 &1928013407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229346234362164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cab0d2e5d3f677843acd682af18c5cad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

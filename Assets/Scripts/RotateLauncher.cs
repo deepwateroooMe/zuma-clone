@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-
 // 这个类功能：负责管理，调控鑫龙头的转向，与发射小球，生成新的小球
 public class RotateLauncher : MonoBehaviour {
     // 鑫龙嘴巴里的球：生成材料 
@@ -18,7 +17,7 @@ public class RotateLauncher : MonoBehaviour {
     public static GameObject instanceBall; // 这个特殊的发射球：全局只有一个，任何时候都应该只有一个
     public float ballSpeed = 10;
     private Vector3 lookPos;
-    private Vector3 relative = new Vector3(2, 0, 2);
+
     private void Start() {
         CreateBall();
     }
@@ -27,17 +26,16 @@ public class RotateLauncher : MonoBehaviour {
         SetBallPostion(); // 每桢更新链表里球儿的位置
     }
     private void FixedUpdate() {
-        ShootBall(); // TODO: 这里发射球：这可能是有时两粒，有时多粒的原因？WHY ？ 不该是只在用户点击的时候才发射球的吗？
+        ShootBall(); 
     }
-    // Rotate the launcher along the mouse position
-    private void RotatePlayerAlongMousePosition () {
+    private void RotatePlayerAlongMousePosition () { // Rotate the launcher along the mouse position
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Camera.main.transform.position.y))
             lookPos = hit.point;
         Vector3 lookDir = lookPos - transform.position;
         lookDir.y = 0;
-        transform.LookAt(transform.position + lookDir, Vector3.up); // 把金龙的头转向这个方向, 这个不好用，方向看反了。。。
+        transform.LookAt(transform.position + lookDir, Vector3.up); 
         // // 1.得到当前位置和目标位置的方向
         // Vector3 dir = (new Vector3(lookPos.x, 0, lookPos.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized;
         // // 2.的到的方向通过LookRotation函数获得这个方向的四元数
@@ -50,7 +48,6 @@ public class RotateLauncher : MonoBehaviour {
         instanceBall.transform.position = transform.position + transform.forward * transform.localScale.z;
     }
     // 【爱表哥，爱生活！！！活宝妹就是一定要嫁给亲爱的表哥！！！】
-    // TODO: 这里有几个 bug: FixedUpdate() 的时间与鼠标左键点下，是两个独立的事件，并不是在 FixedUpdate() 的这个时间点，正好发生鼠标左键点击。所以合理的做法应该是，每当鼠标点击，就将球发送出去？
     private void ShootBall() {
         if (Input.GetKeyDown(KeyCode.Mouse0)) { // 判断条件：并非每桢都自动生成，还是鼠标左键点击后金龙才会发射小球 [GetKeyDown：按下某个按键，按住只会在第一帧返回]
 // 这里给发射出去的小球一个力度：因为力的作用，可以把小球链表往回打【会有可能三个效果：静止不支，向前或是向后！！】
@@ -59,8 +56,8 @@ public class RotateLauncher : MonoBehaviour {
             CreateBall(); // 发射出去一粒，这里就再生成一粒
         }
     }
-    private void CreateBall() { // TODO: 这里因为球的位置不对，需要给它一个相对偏移
-        instanceBall = Instantiate(dummyBall, transform.position, Quaternion.identity);
+    private void CreateBall() { // TODO: 这里因为球的位置不对，需要给它一个相对偏移, 需要考虑青蛙的旋转。背上的球同理
+        instanceBall = Instantiate(dummyBall, transform.position, Quaternion.identity); // 青蛙以它自己为中心旋转；但是两粒小球都有相对偏移
         instanceBall.SetActive(true);
         instanceBall.tag = "NewBall";
         instanceBall.gameObject.layer = LayerMask.NameToLayer("Default");
