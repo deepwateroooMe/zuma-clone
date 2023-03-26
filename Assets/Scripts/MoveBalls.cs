@@ -20,6 +20,7 @@ public enum BallColor { // 太少，共8 种：这里强行添加多样性，8 �
     purple,
     white
 }
+// 我好像没有仔细去看：轨道里面小球的生成原理，什么时候生成，生成的位置是放在哪里？为什么昨天晚上我把它弄崩的时候他们会成群成片崩出来？
 public class MoveBalls : MonoBehaviour {
     public GameObject redBall; // 这种设计不科学
     public GameObject greenBall;
@@ -45,6 +46,7 @@ public class MoveBalls : MonoBehaviour {
     private int addBallIndex;
     private int touchedBallIndex;
     private float ballRadius;
+    
     private void Start () {
         ballRadius = redBall.transform.localScale.x;// 讨厌这种用法：设计狠不科学。把它调大了一点儿
         headballIndex = 0;
@@ -89,7 +91,7 @@ public class MoveBalls : MonoBehaviour {
     }
     private void InstatiateBall(GameObject ballGameObject) {
         GameObject go = Instantiate(ballGameObject,  bgCurve[0].PositionWorld, Quaternion.identity, ballsContainerGO.transform);
-        go.SetActive(false);
+        go.SetActive(false); // 它在这个时候，还是死的！
         ballList.Add(go.gameObject);
     }
     // When a new Ball is added to the one of the stopped sections move the balls to their correct positions
