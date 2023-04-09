@@ -4,6 +4,7 @@ using UnityEngine;
 using BansheeGz.BGSpline.Components;
 using BansheeGz.BGSpline.Curve;
 using DG.Tweening;
+using System;
 // 现在游戏中：这个太短了，原本只有8 个小球，现设置为 227 粒小球，需要有一个硬性个数设定，对不同关卡可以设置不同
 public struct ActiveBallList {
     List<GameObject> ballList;
@@ -22,6 +23,8 @@ public enum BallColor { // 太少，共8 种：这里强行添加多样性，8 �
 }
 // 我好像没有仔细去看：轨道里面小球的生成原理，什么时候生成，生成的位置是放在哪里？为什么昨天晚上我把它弄崩的时候他们会成群成片崩出来？
 public class MoveBalls : MonoBehaviour {
+    private const string TAG = "MoveBalls";
+
     public GameObject redBall; // 这种设计不科学
     public GameObject greenBall;
     public GameObject blueBall;
@@ -61,7 +64,8 @@ public class MoveBalls : MonoBehaviour {
             CreateNewBall();
         sectionData = new SectionData();
     }
-    private void Update () {
+    
+    private void Update () { // 添加游戏结束的逻辑
         if (sectionData.ballSections.Count > 1 && addBallIndex != -1 && addBallIndex < headballIndex)
             MoveStopeedBallsAlongPath();
         if (ballList.Count > 0) // 最开始：只有一个片段
@@ -74,6 +78,7 @@ public class MoveBalls : MonoBehaviour {
             MergeActiveEnds();
         MergeIfStoppedEndsMatch();
     }
+    
     public void AddNewBallAt(GameObject go, int index, int touchedBallIdx) {
         addBallIndex = index; // addBallIndex != -1  // <<<<<<<<<<<<<<<<<<<< 
         touchedBallIndex = touchedBallIdx;
@@ -89,13 +94,13 @@ public class MoveBalls : MonoBehaviour {
         // adjust distance for headBall or the position of the front in the added section
         PushSectionForwardByUnit(); // 这里就是，碰撞里产生的力的效果，添加一点儿游戏乐趣体验
     }
-    private void InstatiateBall(GameObject ballGameObject) {
+    private void InstatiateBall(GameObject ballGameObject) { // 这里说，初始化小球的时候永远摆那个特殊曲线第一个点的位置 
         GameObject go = Instantiate(ballGameObject,  bgCurve[0].PositionWorld, Quaternion.identity, ballsContainerGO.transform);
-        go.SetActive(false); // 它在这个时候，还是死的！
+        go.SetActive(false); // 它在这个时候，还是死的！并且它是死的，后来程序中，数据结构中会把它改活
         ballList.Add(go.gameObject);
     }
     // When a new Ball is added to the one of the stopped sections move the balls to their correct positions
-    private void MoveStopeedBallsAlongPath() {
+    private void MoveStopeedBallsAlongPath() { // 这里现在还不有考虑的部分就是：那条曲线是有头的，到了那个大洞，就会自动停止运动，需要检测到那个点，并作必要的小球的回收工作 
         int sectionKey = sectionData.GetSectionKey(addBallIndex);
         int sectionKeyVal = sectionData.ballSections[sectionKey];
         int movingBallCount = 1;
@@ -126,16 +131,25 @@ public class MoveBalls : MonoBehaviour {
         ballList[headballIndex].transform.rotation = Quaternion.LookRotation(tangent); // 目标旋转角度 
         if (!ballList[headballIndex].activeSelf) // 什么情况下会出现这种情况？
             ballList[headballIndex].SetActive(true);
-        for (int i = headballIndex + 1; i < ballList.Count; i++) { // 带头小球 1 秒内设置到目标位置角度；链条里其它小球的处理 
+        bool noMovement = false;
+        for (int i = headballIndex + 1; i < ballList.Count; i++) { // 带头小球 1 秒内设置到目标位置角度；链条里其它小球的处理
+            noMovement = false;
             float currentBallDist = distance - movingBallCount * ballRadius; // 为什么这种情况下，需要考虑小球的半径？
             Vector3 trailPos = GetComponent<BGCcMath>().CalcPositionAndTangentByDistance(currentBallDist , out tangent);
+            // 这里大概是可以判断一下：是否真正发生位移，因为尾巴处是不发生真正位移，可以销毁的。但是这么做效率太低了。。。 trailPos
+            if (Math.Abs(trailPos.x - ballList[i].transform.position.x) < 0.01
+                && Math.Abs(trailPos.z - ballList[i].transform.position.z) < 0.01) { // 可以功能上实现，但不高效
+                noMovement = true;
+                Debug.Log(TAG + " noMovement: " + noMovement);
+            }
             if (i == addBallIndex && addBallIndex != -1) // 如果这个位置新增了一个发射过来的小球
                 ballList[i].transform.DOMove(trailPos, 0.5f).SetEase(easeType); // 0.5 秒移动到位：作线性运往到位。比普通运行快一倍
             else
                 ballList[i].transform.DOMove(trailPos, 1); // 其它平移情况：慢一点儿，正常速度
             ballList[i].transform.rotation = Quaternion.LookRotation(tangent);
-            if (!ballList[i].activeSelf) // 这里的情况是：没有出土的大概是失活的；等它需要出土了，它就需要被激活
-                ballList[i].SetActive(true);
+// 这里的情况是：没有出土的大概是失活的；等它需要出土了，它就需要被激活。【另外我刚才的 bug 就是：即便你把它失活，只要它还能动一点儿，又会被激活】
+            if (!ballList[i].activeSelf && !noMovement) 
+                ballList[i].SetActive(true); // 批量生成与每桢判断是不科学的，低效；销毁时失活了，又被激活了。。。
             movingBallCount++;
         }
     }
@@ -330,7 +344,7 @@ public class MoveBalls : MonoBehaviour {
     }
 
     public static BallColor GetRandomBallColor() {
-        int rInt = Random.Range(0, 8); // 这个生成少了，黄色的就出不来
+        int rInt = UnityEngine.Random.Range(0, 8); // 这个生成少了，黄色的就出不来
         return (BallColor)rInt;
     }
     private void CreateNewBall() {
@@ -362,4 +376,3 @@ public class MoveBalls : MonoBehaviour {
         }
     }
 }
-

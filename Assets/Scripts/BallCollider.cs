@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 这个类的逻辑极其清楚了
 // 鑫龙口中吐出的小球带有这种脚本：每个小球自带的碰撞检测。只有鑫龙口中吐出的小球带有这种脚本，链表里的带有可碰撞的 Colliders
 public class BallCollider : MonoBehaviour {
 

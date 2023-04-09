@@ -33,19 +33,25 @@ public class RotateLauncher : MonoBehaviour {
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Camera.main.transform.position.y))
             lookPos = hit.point;
-        Vector3 lookDir = lookPos - transform.position;
-        lookDir.y = 0;
-        transform.LookAt(transform.position + lookDir, Vector3.up); 
-        // // 1.得到当前位置和目标位置的方向
-        // Vector3 dir = (new Vector3(lookPos.x, 0, lookPos.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized;
-        // // 2.的到的方向通过LookRotation函数获得这个方向的四元数
-        // Quaternion rot = Quaternion.LookRotation(dir);
-        // // 3.使用插件DOTween中DORotate的旋转得到角度
-        // transform.DORotate(new Vector3(rot.eulerAngles.x, rot.eulerAngles.y, rot.eulerAngles.z), 0.05f, RotateMode.Fast);
+        // Vector3 lookDir = lookPos - transform.position;
+        // lookDir.y = 0;
+        // transform.LookAt(transform.position + lookDir, Vector3.up);  // 这里是向上看吗？不该是往前看才对吗？
+
+        // 1.得到当前位置和目标位置的方向
+        Vector3 dir = (new Vector3(lookPos.x, 0, lookPos.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized;
+        // 2.的到的方向通过LookRotation函数获得这个方向的四元数
+        Quaternion rot = Quaternion.LookRotation(dir);
+        // 3.使用插件DOTween中DORotate的旋转得到角度
+        transform.DORotate(new Vector3(rot.eulerAngles.x, rot.eulerAngles.y, rot.eulerAngles.z), 0.01f, RotateMode.Fast);
     }
     private void SetBallPostion() { // 这里更改的是：发射出去，在路上的小球的每桢的位置变化
         instanceBall.transform.forward = transform.forward;
-        instanceBall.transform.position = transform.position + transform.forward * transform.localScale.z;
+        // instanceBall.transform.position = transform.position;
+        instanceBall.transform.position = transform.position + transform.forward * transform.localScale.z;//ori
+        // 把下面的去掉，它就似乎又可以正常碰撞检测了。感觉可以理解无法碰撞到是因为往天上发射，但没明白下面的【位置向前移动一点儿，向下移动一点儿，已经改变了小球的相对发射方向】
+        // instanceBall.transform.position = transform.position + transform.forward * 4;  // 改成这个样子的就不可以
+        // instanceBall.transform.position = transform.position - new Vector3(0f, 2f, 0f); // 这里只是把发射小球的高度降低 
+        // instanceBall.transform.position = transform.position;
     }
     // 【爱表哥，爱生活！！！活宝妹就是一定要嫁给亲爱的表哥！！！】
     private void ShootBall() {
